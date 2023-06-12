@@ -6,21 +6,35 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Blaqollar/ecommerce-backend-api/database"
 	"github.com/Blaqollar/ecommerce-backend-api/models"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/matryer/moq/generate"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
 )
 
-func HashPassword(password string) string {
+var UserCollection *mongo.Collection = database.UserData(database.Client, "Users")
+var ProductCollection *mongo.Collection = database.ProductData(database.Client, "Products")
 
+func HashPassword(password string) string {
+	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
+	if err != nil {
+		log.Panic(err)
+	}
+	return string(bytes)
 }
 
-func VerifyPassword(UserPassword, GivenPassword string) (bool, string) {
-
+func VerifyPassword(userPassword, givenPassword string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(givenPassword), []byte(userPassword))
+	if err != nil {
+		return false
+	}
+	return true
 }
 
 func SignUp() gin.HandlerFunc {
@@ -110,12 +124,12 @@ func Login() gin.HandlerFunc {
 			return
 		}
 
-		PasswordIsValid, msg := VerifyPassword(user.Password, foundUser.Password)
+		PasswordIsValid := VerifyPassword(user.Password, foundUser.Password)
 		defer cancel()
 
 		if !PasswordIsValid {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
-			fmt.Println(msg)
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "iinvalid credentials"})
+			fmt.Println("invalid credentials")
 			return
 		}
 
@@ -133,7 +147,31 @@ func ProductViewerAdmin() gin.HandlerFunc {
 }
 
 func SearchProduct() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var productList []models.Product
 
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		cursor, err := ProductCollection.Find(ctx, bson.D{{}})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, "something went wrong")
+		}
+
+		err = cursor.All(ctx, &productList)
+		if err != nil {
+			log.Println(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+		}
+
+		defer cursor.Close(ctx)
+		if err := cursor.Err(); err != nil {
+			log.Println(err)
+			c.JSON(400, "invalid")
+		}
+		defer cancel()
+		c.JSON(200, productList)
+	}
 }
 
 func SearchProductByQuery() gin.HandlerFunc {
