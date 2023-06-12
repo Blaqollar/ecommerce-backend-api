@@ -175,5 +175,40 @@ func SearchProduct() gin.HandlerFunc {
 }
 
 func SearchProductByQuery() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var queryProducts []models.Product
 
+		productQueryID := c.Query("product_Name")
+
+		if productQueryID == "" {
+			c.Header("Content-Type", "application/json")
+			c.JSON(http.StatusInternalServerError, gin.H{"product_Name": "product name is required"})
+			c.Abort()
+		}
+
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		cursor, err := ProductCollection.Find(ctx, bson.M{"productName": productQueryID})
+
+		if err != nil {
+			log.Println(err)
+			c.JSON(http.StatusInternalServerError, "something went wrong")
+		}
+
+		err = cursor.All(ctx, &queryProducts)
+		if err != nil {
+			log.Println(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+		}
+
+		cursor.Close(ctx)
+		if err := cursor.Err(); err != nil {
+			log.Println(err)
+			c.JSON(400, "invalid")
+		}
+
+		defer cancel()
+		c.JSON(200, queryProducts)
+	}
 }

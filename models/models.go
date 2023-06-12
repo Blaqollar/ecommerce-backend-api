@@ -21,7 +21,7 @@ type User struct {
 
 type Product struct {
 	ProductID   string  `json:"product_id" bson:"product_id,omitempty"`
-	ProductName string  `json:"product_name" bson:"product_name,omitempty"`
+	ProductName string  `json:"product_Name" bson:"product_Name,omitempty"`
 	Description string  `json:"description" bson:"description,omitempty"`
 	Price       float64 `json:"price" bson:"price,omitempty"`
 	Rating      float64 `json:"rating" bson:"rating,omitempty"`
