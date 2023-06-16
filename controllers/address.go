@@ -48,11 +48,11 @@ func DeleteAddress() gin.HandlerFunc {
 
 		_, err = UserCollection.UpdateOne(ctx, filter, update)
 		if err != nil {
-			c.JSON(404, "address not updated")
+			c.JSON(404, "Address not updated")
 		}
 		defer cancel()
 		ctx.Done()
 
-		c.JSON(200, "successfully deleted address")
+		c.JSON(200, "Successfully deleted address")
 	}
 }

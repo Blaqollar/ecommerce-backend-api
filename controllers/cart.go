@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"github.com/Blaqollar/ecommerce-backend-api/database"
+	"github.com/Blaqollar/ecommerce-backend-api/models"
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/net/context"
@@ -99,6 +101,52 @@ func (app *Application) RemoveItem() gin.HandlerFunc {
 }
 
 func GetItemFromCart() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user_Id := c.Query("_id")
+
+		if user_Id == "" {
+			c.Header("Content-Type", "application/json")
+			c.JSON(http.StatusInternalServerError, gin.H{"Error": "Invalid Id"})
+			c.Abort()
+		}
+
+		userID, _ := primitive.ObjectIDFromHex(user_Id)
+
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		var filledCart models.User
+
+		err := UserCollection.FindOne(ctx, bson.M{"_id": userID}).Decode(&filledCart)
+
+		if err != nil {
+			log.Println(err)
+			c.JSON(500, "Not found")
+		}
+
+		pipeline := []bson.M{
+			{"$match": bson.M{"_id": userID}},
+			{"$unwind": bson.M{"path": "usercart"}},
+			{"$group": bson.D{primitive.E{Key: "_id", Value: "$_id"}, {Key: "total", Value: bson.D{primitive.E{Key: "$sum", Value: "$usercart.price"}}}}},
+		}
+
+		cursor, err := UserCollection.Aggregate(ctx, pipeline)
+		if err != nil {
+			log.Println(err)
+		}
+		var listing []bson.M
+		err = cursor.All(ctx, &listing)
+		if err != nil {
+			log.Println(err)
+			c.AbortWithStatus(http.StatusInternalServerError)
+		}
+
+		for _, json := range listing {
+			c.JSON(200, json["total"])
+			c.JSON(200, filledCart.UserCart)
+		}
+		ctx.Done()
+	}
 
 }
 
