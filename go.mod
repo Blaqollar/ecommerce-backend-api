@@ -6,7 +6,6 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/validator/v10 v10.14.1
 	github.com/matryer/moq v0.3.1
-	github.com/opentracing/opentracing-go v1.2.0
 	go.mongodb.org/mongo-driver v1.11.7
 	golang.org/x/crypto v0.9.0
 	golang.org/x/net v0.10.0

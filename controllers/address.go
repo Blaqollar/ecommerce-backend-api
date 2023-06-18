@@ -76,7 +76,35 @@ func AddAddress() gin.HandlerFunc {
 }
 
 func EditHomeAddress() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user_Id := c.Query("_id")
 
+		if user_Id == "" {
+			c.Header("Content-Type", "application/json")
+			c.JSON(http.StatusInternalServerError, gin.H{"Error": "UserId is empty"})
+			c.Abort()
+		}
+		userID, err := primitive.ObjectIDFromHex(user_Id)
+		if err != nil {
+			c.JSON(404, "Internal error")
+		}
+
+		var editaddress models.Address
+		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
+		defer cancel()
+
+		filter := bson.D{primitive.E{Key: "_id", Value: userID}}
+		update := bson.D{{Key: "$set", Value: primitive.E{Key: "address.0.house_name", Value: editaddress.House}, {Key: "address.0.street_name", Value: editaddress.Street}, {Key: "address.0.city_name", Value: editaddress.City}, {Key: "address.0.pin_code", Value: editaddress.Pincode}}}
+
+		_, err = UserCollection.UpdateOne(ctx, filter, update)
+		if err != nil {
+			c.JSON(500, "somethingn went wrong")
+		}
+		defer cancel()
+		ctx.Done()
+
+		c.JSON(200, "Successfully updated home address")
+	}
 }
 
 func EditWorkAddress() gin.HandlerFunc {
