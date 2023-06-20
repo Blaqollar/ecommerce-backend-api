@@ -52,8 +52,25 @@ func TokenGenerator(email, firstName, lastName, uid string) (signedToken, signed
 	return token, refreshToken, err
 }
 
-func ValidateToken() {
+func ValidateToken(signedToken string) (claims *SignedDetails, msg string) {
 
+	token, err := jwt.ParseWithClaims(signedToken, SignedDetails{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(SECRET_KEY), nil
+	})
+
+	if err != nil {
+		msg = err.Error()
+	}
+
+	claims, ok := token.Claims.(*SignedDetails)
+	if !ok {
+		msg = "the token is invalid"
+	}
+
+	if claims.ExpiresAt > time.Now().Local().Unix() {
+		msg = "token has expired"
+	}
+	return claims, msg
 }
 
 func UpdateAllTokens() {
