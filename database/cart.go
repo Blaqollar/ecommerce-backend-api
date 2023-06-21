@@ -43,7 +43,7 @@ func AddToCart(ctx context.Context, prodCollection, userCollection *mongo.Collec
 	return nil
 }
 
-func RemoveItem(ctx context.Context, userCollection *mongo.Collection, userID, productID string) error {
+func RemoveItem(ctx context.Context, prodCollection, userCollection *mongo.Collection, userID, productID string) error {
 	id, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
 		log.Println(err)
