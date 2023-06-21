@@ -17,13 +17,13 @@ import (
 
 type Application struct {
 	prodCollection *mongo.Collection
-	UserCollection *mongo.Collection
+	userCollection *mongo.Collection
 }
 
 func NewApplication(prodCollection, userCollection *mongo.Collection) *Application {
 	return &Application{
 		prodCollection: prodCollection,
-		UserCollection: userCollection,
+		userCollection: userCollection,
 	}
 }
 
@@ -163,7 +163,7 @@ func (app *Application) BuyFromCart() gin.HandlerFunc {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		err := database.BuyFromCart(ctx, app.UserCollection, userQueryID)
+		err := database.BuyFromCart(ctx, app.userCollection, userQueryID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 		}
@@ -198,7 +198,7 @@ func (app *Application) InstantBuy() gin.HandlerFunc {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		err = database.InstantBuyer(ctx, app.prodCollection, app.userCollection, productID, userQueryID)
+		err = database.InstantBuy(ctx, app.prodCollection, app.userCollection, productID, userQueryID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 		}

@@ -49,7 +49,7 @@ func AddAddress() gin.HandlerFunc {
 			c.JSON(500, "Internal server error")
 		}
 
-		var addressInfo bson.M
+		var addressInfo []bson.M
 		err = cursor.All(ctx, &addressInfo)
 		if err != nil {
 			log.Panic(err)
@@ -58,7 +58,7 @@ func AddAddress() gin.HandlerFunc {
 		var size int64
 		for _, addressNo := range addressInfo {
 			count := addressNo["count"]
-			size = count.Int64()
+			size = count.(int64)
 		}
 		if size < 2 {
 			filter := bson.D{primitive.E{Key: "_id", Value: address}}
@@ -99,7 +99,7 @@ func EditHomeAddress() gin.HandlerFunc {
 		defer cancel()
 
 		filter := bson.D{primitive.E{Key: "_id", Value: userID}}
-		update := bson.D{{Key: "$set", Value: primitive.E{Key: "address.0.house_name", Value: editaddress.House}, {Key: "address.0.street_name", Value: editaddress.Street}, {Key: "address.0.city_name", Value: editaddress.City}, {Key: "address.0.pin_code", Value: editaddress.Pincode}}}
+		update := bson.D{{Key: "$set", Value: bson.D{primitive.E{Key: "address.0.house_name", Value: editaddress.House}, {Key: "address.0.street_name", Value: editaddress.Street}, {Key: "address.0.city_name", Value: editaddress.City}, {Key: "address.0.pin_code", Value: editaddress.Pincode}}}}
 
 		_, err = UserCollection.UpdateOne(ctx, filter, update)
 		if err != nil {
@@ -136,7 +136,7 @@ func EditWorkAddress() gin.HandlerFunc {
 		defer cancel()
 
 		filter := bson.D{primitive.E{Key: "_id", Value: userID}}
-		update := bson.D{{Key: "$set", Value: primitive.E{Key: "address.1.house_name", Value: editaddress.House}, {Key: "address.1.street_name", Value: editaddress.Street}, {Key: "address.1.city_name", Value: editaddress.City}, {Key: "address.1.pin_code", Value: editaddress.Pincode}}}
+		update := bson.D{{Key: "$set", Value: bson.D{primitive.E{Key: "address.1.house_name", Value: editaddress.House}, {Key: "address.1.street_name", Value: editaddress.Street}, {Key: "address.1.city_name", Value: editaddress.City}, {Key: "address.1.pin_code", Value: editaddress.Pincode}}}}
 
 		_, err = UserCollection.UpdateOne(ctx, filter, update)
 		if err != nil {
