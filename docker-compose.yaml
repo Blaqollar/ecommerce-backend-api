@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  
+  mongodb:
+    image: mongo:5.0
+    ports:
+      - 27017:27017
+    environment:
+        - MONGO_INITDB_DATABASE=${MONGODB_DATABASE_NAME}
+        - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}
+        - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+    restart: always
+    entrypoint: ["/usr/bin/mongod", "--bind_ip_all", "--replSet", "rs0"]
+
+    
