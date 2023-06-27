@@ -12,13 +12,13 @@ import (
 )
 
 func DBsetup() *mongo.Client {
-	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("Mongo_Uri")))
+	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 
 	defer cancel()
 
@@ -40,11 +40,11 @@ func DBsetup() *mongo.Client {
 var Client *mongo.Client = DBsetup()
 
 func UserData(client *mongo.Client, collectionName string) *mongo.Collection {
-	var collection *mongo.Collection = client.Database("Ecommerce").Collection(collectionName)
+	var collection *mongo.Collection = client.Database("ecommerce").Collection(collectionName)
 	return collection
 }
 
 func ProductData(client *mongo.Client, collectionName string) *mongo.Collection {
-	var productCollection *mongo.Collection = client.Database("Ecommerce").Collection(collectionName)
+	var productCollection *mongo.Collection = client.Database("ecommerce").Collection(collectionName)
 	return productCollection
 }
