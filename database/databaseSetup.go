@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+// This the database connection setup function
 func DBsetup() *mongo.Client {
 	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("MONGODB_URI")))
 
@@ -39,11 +40,13 @@ func DBsetup() *mongo.Client {
 
 var Client *mongo.Client = DBsetup()
 
+// This function connects the user to the database
 func UserData(client *mongo.Client, collectionName string) *mongo.Collection {
 	var collection *mongo.Collection = client.Database("ecommerce").Collection(collectionName)
 	return collection
 }
 
+// This function connects products to the database
 func ProductData(client *mongo.Client, collectionName string) *mongo.Collection {
 	var productCollection *mongo.Collection = client.Database("ecommerce").Collection(collectionName)
 	return productCollection

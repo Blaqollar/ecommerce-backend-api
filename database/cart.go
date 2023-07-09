@@ -12,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// This function adds products to cart
 func AddToCart(ctx context.Context, prodCollection, userCollection *mongo.Collection, productId, userID string) error {
 	product, err := prodCollection.Find(ctx, bson.M{"_id": productId})
 	if err != nil {
@@ -43,6 +44,7 @@ func AddToCart(ctx context.Context, prodCollection, userCollection *mongo.Collec
 	return nil
 }
 
+// This function removes items from the collection
 func RemoveItem(ctx context.Context, prodCollection, userCollection *mongo.Collection, userID, productID string) error {
 	id, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
@@ -60,13 +62,8 @@ func RemoveItem(ctx context.Context, prodCollection, userCollection *mongo.Colle
 	return nil
 }
 
+// This function creates an order from cart
 func BuyFromCart(ctx context.Context, userCollection *mongo.Collection, userID string) error {
-	// fetch the cart of the user
-	// find the cart total
-	// create an order with items
-	// add order to the user collection
-	// added items in the cart to order list
-	// empty up the cart
 
 	id, err := primitive.ObjectIDFromHex(userID)
 	if err != nil {
@@ -137,6 +134,7 @@ func BuyFromCart(ctx context.Context, userCollection *mongo.Collection, userID s
 	return nil
 }
 
+// This function creates an instant order
 func InstantBuy(ctx context.Context, prodCollection, userCollection *mongo.Collection, productID, userID string) error {
 
 	id, err := primitive.ObjectIDFromHex(userID)
