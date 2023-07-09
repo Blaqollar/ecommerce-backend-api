@@ -21,6 +21,7 @@ import (
 var UserCollection *mongo.Collection = database.UserData(database.Client, "Users")
 var ProductCollection *mongo.Collection = database.ProductData(database.Client, "Products")
 
+// This function generates the hash of the password
 func HashPassword(password string) string {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
@@ -29,6 +30,7 @@ func HashPassword(password string) string {
 	return string(bytes)
 }
 
+// This function verifies the password
 func VerifyPassword(userPassword, givenPassword string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(givenPassword), []byte(userPassword))
 	if err != nil {
@@ -37,6 +39,7 @@ func VerifyPassword(userPassword, givenPassword string) bool {
 	return true
 }
 
+// This is the Signup function
 func SignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
@@ -103,6 +106,7 @@ func SignUp() gin.HandlerFunc {
 	}
 }
 
+// This is the login function
 func Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
@@ -142,6 +146,7 @@ func Login() gin.HandlerFunc {
 	}
 }
 
+// This function adds products by admin
 func ProductViewerAdmin() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
@@ -164,6 +169,7 @@ func ProductViewerAdmin() gin.HandlerFunc {
 	}
 }
 
+// This function searches the database for products
 func SearchProduct() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var productList []models.Product
@@ -192,6 +198,7 @@ func SearchProduct() gin.HandlerFunc {
 	}
 }
 
+// This function searches for a product by name
 func SearchProductByQuery() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var queryProducts []models.Product
